@@ -1,49 +1,17 @@
-from fastapi import FastAPI, HTTPException, Depends
+from typing import List, Dict
+from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict
-import schemas
+from . import models as models
+from . import schemas as schemas
 import database
-import models
 
 
 
-
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # later restrict
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-all_todos = {
- 1 :  {'id':1,'todo_detail': 'Hit arms'},                                        # todo_id will be taken care of by our db (using "index = True")
- 2 : {'id':2,'todo_detail': 'Finish shipping the todo feature'}
-}
-
-
-# Creating the tables (i.e models) - One time process.
-models.Base.metadata.create_all(bind=database.engine)
-
-# Inserting some values in the table at the start:  We'll have to make sure that this only occurs once.
-def init_db():
-    db = database.session()
-    count = db.query(models.Todos).count()
-    if count==0:
-        todos = list(all_todos.values())
-        for todo in todos:
-            processed_todo = models.Todos(**(todo))
-            db.add(processed_todo)
-        db.commit() # after committing, the session will get closed hence done at the end.
-
-init_db()
+router = APIRouter(prefix="/todos", tags=["todos"])
 
 # FETCHING TODOs
-@app.get('/todos', response_model=List[schemas.responseTodo])   
+@router.get('/', response_model=List[schemas.responseTodo])   
 def get_todos(db : Session = Depends(database.get_db)):     # the 'db' is used to create a session with the database in order to perform crud operations.
 
     fetched_data = db.query(models.Todos).order_by(models.Todos.id).all()
@@ -53,7 +21,7 @@ def get_todos(db : Session = Depends(database.get_db)):     # the 'db' is used t
 
 
 # CREATING TODOs
-@app.post('/todos', response_model=schemas.responseTodo)
+@router.post('/', response_model=schemas.responseTodo)
 def create_todo(todo_input : schemas.createTodo, db : Session = Depends(database.get_db)):
 
     # Generating todo_id:
@@ -70,7 +38,7 @@ def create_todo(todo_input : schemas.createTodo, db : Session = Depends(database
 
 
 # UPDATING TODOs
-@app.put('/todos', response_model=schemas.responseTodo)
+@router.put('/', response_model=schemas.responseTodo)
 def update_todo(todo_id:int,todo_update : schemas.updateTodo, db : Session = Depends(database.get_db)):
     target_todo = db.query(models.Todos).filter(models.Todos.id == todo_id).first()
     if target_todo:
@@ -83,7 +51,7 @@ def update_todo(todo_id:int,todo_update : schemas.updateTodo, db : Session = Dep
 
 
 # DELETING TODOs
-@app.delete('/todos',response_model=schemas.responseTodo)
+@router.delete('/',response_model=schemas.responseTodo)
 def delete_todo(todo_id: int, db : Session = Depends(database.get_db)):
     
     target_todo = db.query(models.Todos).filter(models.Todos.id == todo_id).first()
@@ -93,3 +61,34 @@ def delete_todo(todo_id: int, db : Session = Depends(database.get_db)):
         db.commit()
         return temp
     raise HTTPException(status_code=404, detail="Todo not found")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Inserting some values in the table at the start:  We'll have to make sure that this only occurs once.
+# def init_db():
+#     db = database.session()
+#     count = db.query(models.Todos).count()
+#     if count==0:
+#         todos = list(all_todos.values())
+#         for todo in todos:
+#             processed_todo = models.Todos(**(todo))
+#             db.add(processed_todo)
+#         db.commit() # after committing, the session will get closed hence done at the end.
+
+# init_db()

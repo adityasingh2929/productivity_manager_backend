@@ -9,4 +9,3 @@ class Todos(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     todo_detail = Column(String)
-    

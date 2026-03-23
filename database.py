@@ -1,8 +1,15 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
+import os
+from dotenv import load_dotenv
 
-url = "postgresql://postgres:password@localhost:5432/productivity_management"    
+load_dotenv()   # loads the env variables
+
+url = os.getenv("DATABASE_URL")
+
+
+   
 engine = create_engine(url)
 session = sessionmaker(autocommit=False, bind=engine)
 
