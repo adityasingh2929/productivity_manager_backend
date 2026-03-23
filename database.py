@@ -10,7 +10,7 @@ url = os.getenv("DATABASE_URL")
 
 
    
-engine = create_engine(url)
+engine = create_engine(url,pool_pre_ping=True)
 session = sessionmaker(autocommit=False, bind=engine)
 
 
