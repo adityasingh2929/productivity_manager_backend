@@ -1,9 +1,9 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Float, Column, Integer, String
 
-Base = declarative_base()
+BaseT = declarative_base()
 
-class Todos(Base):
+class Todos(BaseT):
 
     __tablename__ = "Todos"
 

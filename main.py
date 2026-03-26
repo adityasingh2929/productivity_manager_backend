@@ -1,29 +1,35 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.middleware.cors import CORSMiddleware
 
 
 import database
-import app.todos.models
-from app.todos.router import router as todos_router
-from app.todos.models import Base
+# import app.todos.models
+# from app.todos.router import todos_router
+from app.gymlogs.router import gymlogs_router
+# from app.todos.models import BaseT
+from app.gymlogs.models import BaseG
+
 
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+#uncomment this, todos_api.py and 1 todos.py
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"], 
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 
 # Creating the tables (i.e models) - One time process.
-Base.metadata.create_all(bind=database.engine)
+# BaseT.metadata.create_all(bind=database.engine)
+BaseG.metadata.create_all(bind=database.engine)
 
 # adding feature wise routers:
-app.include_router(todos_router)
+# app.include_router(todos_router)
+app.include_router(gymlogs_router)
 
 
 

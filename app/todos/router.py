@@ -8,10 +8,10 @@ import database
 
 
 
-router = APIRouter(prefix="/todos", tags=["todos"])
+todos_router = APIRouter(prefix="/todos", tags=["todos"])
 
 # FETCHING TODOs
-@router.get('/', response_model=List[schemas.responseTodo])   
+@todos_router.get('/', response_model=List[schemas.responseTodo])   
 def get_todos(db : Session = Depends(database.get_db)):     # the 'db' is used to create a session with the database in order to perform crud operations.
 
     fetched_data = db.query(models.Todos).order_by(models.Todos.id).all()
@@ -21,7 +21,7 @@ def get_todos(db : Session = Depends(database.get_db)):     # the 'db' is used t
 
 
 # CREATING TODOs
-@router.post('/', response_model=schemas.responseTodo)
+@todos_router.post('/', response_model=schemas.responseTodo)
 def create_todo(todo_input : schemas.createTodo, db : Session = Depends(database.get_db)):
 
     # Generating todo_id:
@@ -38,7 +38,7 @@ def create_todo(todo_input : schemas.createTodo, db : Session = Depends(database
 
 
 # UPDATING TODOs
-@router.put('/', response_model=schemas.responseTodo)
+@todos_router.put('/', response_model=schemas.responseTodo)
 def update_todo(todo_id:int,todo_update : schemas.updateTodo, db : Session = Depends(database.get_db)):
     target_todo = db.query(models.Todos).filter(models.Todos.id == todo_id).first()
     if target_todo:
@@ -51,7 +51,7 @@ def update_todo(todo_id:int,todo_update : schemas.updateTodo, db : Session = Dep
 
 
 # DELETING TODOs
-@router.delete('/',response_model=schemas.responseTodo)
+@todos_router.delete('/',response_model=schemas.responseTodo)
 def delete_todo(todo_id: int, db : Session = Depends(database.get_db)):
     
     target_todo = db.query(models.Todos).filter(models.Todos.id == todo_id).first()
