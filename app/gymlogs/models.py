@@ -18,3 +18,4 @@ class WorkoutLogs(BaseG):
     workout_name = Column(String)
     weight = Column(Float)
     reps = Column(Integer)
+    set = Column(Integer)
