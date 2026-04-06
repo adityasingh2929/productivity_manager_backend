@@ -12,9 +12,12 @@ from . import schemas
 gym_router = APIRouter(prefix="/gym",tags=["Gym"])
 
 
+
+
 @gym_router.post("/weeks")
 def create_gym_week(db : Session = Depends(database.get_db)):
-    new_week = models.gymWeek()
+    last_week = db.query(func.max(models.gymWeek.week_number)).scalar()
+    new_week = 1 if last_week is None else last_week+1
     db.add(new_week)
     db.commit()
     db.refresh(new_week)
@@ -23,9 +26,14 @@ def create_gym_week(db : Session = Depends(database.get_db)):
 @gym_router.get("/weeks", response_model=List[schemas.gymWeekResponse])
 def fetch_gym_week(db : Session = Depends(database.get_db)):
     fetch = db.query(models.gymWeek).all()               # we use the model's class not the tablename here, in order to validate/fetch the data as per the db format.
-    if fetch:
-        return fetch
-    raise HTTPException(status_code=404, detail=f"{fetch}")
+    if not fetch:
+        new_week = models.gymWeek(week_number=1)
+        db.add(new_week)
+        db.commit()
+        db.refresh(new_week)
+        return [new_week]
+    return fetch
+    
 
 @gym_router.get("/weeks/logs", response_model=List[schemas.responseLog])
 def fetch_logs(week_number : int, workout_name : str, db : Session = Depends(database.get_db)):
