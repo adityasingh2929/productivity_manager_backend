@@ -39,7 +39,9 @@ app.include_router(gym_router)
 
 
 
-
+@app.get("/ping")
+def ping():
+    return {"status": "alive"}
 
 
 
